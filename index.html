@@ -5,9 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
     <meta name="color-scheme" content="light" />
     <link rel="icon" href="data:," />
-        <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
-        <meta name="apple-mobile-web-app-title" content="ピザ屋バイト" />
-    <meta name="mobile-web-app-capable" content="yes" />
     <title>ピザ屋バイトと3人の常連さん</title>
     <style>
       :root{
@@ -304,6 +301,39 @@
       }
       .ending-card-btn:active{ transform:scale(.96); }
       .ending-modal-note{ margin:4px 0 0; font-size:11.5px; line-height:1.6; color:#8a5a33; }
+      .ending-item.complete{ border-color:#d9a83f; background:#fff6da; }
+      /* ---------- 全エンディング達成 特典カード ---------- */
+      /* エンディング一覧（80）・エンドカード拡大（90）・シート表示（95）より手前 */
+      #completeModal{
+        position:absolute; inset:0; z-index:97;
+        display:none; align-items:center; justify-content:center;
+        background:rgba(15,9,6,.72); padding:18px;
+      }
+      #completeModal.show{ display:flex; }
+      .complete-card{
+        background:var(--paper); border:3px solid #d9a83f; border-radius:18px;
+        padding:14px 14px 16px; width:min(94%,430px);
+        max-height:calc(100dvh - 36px); overflow-y:auto;
+        box-shadow:0 16px 40px rgba(0,0,0,.5);
+        text-align:center;
+      }
+      .complete-card img{
+        width:100%; height:auto; max-height:52dvh; object-fit:contain; display:block;
+        border-radius:12px; border:2px solid #e8d5b5; background:#f7ecd9;
+      }
+      .complete-card h2{
+        margin:12px 0 6px; font-size:clamp(21px,6vw,27px); font-weight:900;
+        color:var(--accent-dark); letter-spacing:.03em;
+      }
+      .complete-card p{
+        margin:0 4px; font-size:14.5px; line-height:1.85; color:#5a4636; font-weight:700;
+      }
+      .complete-close{
+        margin-top:14px; width:100%;
+        background:var(--accent); color:#fff; border:none; border-radius:10px;
+        font-size:16px; font-weight:800; padding:11px;
+      }
+      .complete-close:active{ transform:scale(.98); }
       /* ---------- タイトル / エンディング ---------- */
       .screen{
         position:absolute; inset:0; z-index:60;
@@ -688,6 +718,16 @@
         <img id="cardZoomImg" alt="エンドカード（拡大表示）" />
         <button id="cardZoomClose" type="button" aria-label="拡大表示を閉じる">✕</button>
         <p class="card-zoom-hint">タップで閉じる</p>
+      </div>
+
+      <!-- 全エンディング達成 特典カード（画像は差し替え専用ファイル assets/arigato-card.jpg） -->
+      <div id="completeModal" role="dialog" aria-label="全エンディング達成特典カード">
+        <div class="complete-card">
+          <img id="completeImg" src="assets/arigato-card.jpg?v=20261111j" alt="赤いコンテナのお店の前に立つ全員集合のイラスト" />
+          <h2>全エンディング達成！</h2>
+          <p>9つすべてのエンディングを見届けてくれて、ありがとうございました。<br />あなたと過ごした「あかいろピザ」での日々は、みんなの宝物です。またいつでも、焼きたてのピザを食べに来てくださいね。</p>
+          <button class="complete-close" id="completeClose" type="button">閉じる</button>
+        </div>
       </div>
 
       <!-- キャラクターシート表示（タイトル画面でキャラをタップ） -->
@@ -1421,6 +1461,10 @@
       var TRAINING_ENDCARD = "assets/endcard-training.jpg?v=20261111e";
       /* 隠しエンディング（八方美人エンド）用カード：到達時は常時表示 */
       var HIDDEN_ENDCARD = "assets/endcard-hidden.jpg?v=20261111e";
+      /* 全エンディング達成（9/9）特典カード。絵は差し替え専用ファイルに分離してあり、
+         専用イラストが届いたら assets/arigato-card.jpg の中身を差し替えるだけでよい
+         （当面はタイトル画面の全員集合と同じ絵柄を合成したものを入れてある） */
+      var COMPLETE_CARD_SRC = "assets/arigato-card.jpg?v=20261111j";
       /* ================= エンディング回収（コレクション） =================
          ゲーム内に実在する全エンディングを対象にする。
          ヒロイン個別エンドは、通常到達と一筋MAX到達（専用エンドカードが
@@ -1532,7 +1576,7 @@
           "tsumugi-body.png","tsumugi-normal-s2.png","tsumugi-confused-s2.png","tsumugi-shy-s2.png","tsumugi-smile-s2.png",
           "master-body.png","master-normal-s2.png","master-genki-s2.png","master-craft-s2.png","master-warm-s2.png",
           "top-shop.jpg","scene-interior.jpg","scene-night.jpg","scene-evening.jpg",
-          "endcard-shiori.jpg","endcard-hina.jpg","endcard-tsumugi.jpg","endcard-normal.jpg","endcard-training.jpg","endcard-hidden.jpg"];
+          "endcard-shiori.jpg","endcard-hina.jpg","endcard-tsumugi.jpg","endcard-normal.jpg","endcard-training.jpg","endcard-hidden.jpg","arigato-card.jpg"];
         for(var i = 0; i < files.length; i++){
           var im = new Image();
           im.src = "assets/" + files[i] + "?v=20261111e";
@@ -1746,6 +1790,7 @@
         if($("statusModal").classList.contains("show")) return;
         if($("endingModal").classList.contains("show")) return;
         if($("sheetModal").classList.contains("show")) return;
+        if($("completeModal").classList.contains("show")) return;
         if(typing){
           if(typeTimer) clearInterval(typeTimer);
           typing = false; textEl.textContent = fullText; return;
@@ -1863,6 +1908,41 @@
           }
           wrap.appendChild(item);
         });
+        /* 9/9達成後は、特典カードを一覧の末尾に常設し、他のエンドカードと
+           同じ「カードを見る」でいつでも見返せるようにする */
+        if(n >= ENDING_CATALOG.length){
+          var cItem = document.createElement("div");
+          cItem.className = "ending-item complete";
+          var cThumb = document.createElement("img");
+          cThumb.className = "ending-thumb";
+          cThumb.src = COMPLETE_CARD_SRC;
+          cThumb.alt = "";
+          cItem.appendChild(cThumb);
+          var cMain = document.createElement("div");
+          cMain.className = "ending-item-main";
+          var cNm = document.createElement("div");
+          cNm.className = "ending-item-name";
+          cNm.textContent = "特典 ― 全エンディング達成！";
+          var cDt = document.createElement("div");
+          cDt.className = "ending-item-date";
+          var latestIso = "";
+          ENDING_CATALOG.forEach(function(en){ if(col[en.id] && col[en.id] > latestIso) latestIso = col[en.id]; });
+          var cds = formatEndingDate(latestIso);
+          cDt.textContent = cds ? (cds + " コンプリート") : "コンプリート";
+          cMain.appendChild(cNm); cMain.appendChild(cDt);
+          cItem.appendChild(cMain);
+          var cBtn = document.createElement("button");
+          cBtn.type = "button";
+          cBtn.className = "ending-card-btn";
+          cBtn.textContent = "カードを見る";
+          cBtn.addEventListener("click", function(ev){
+            ev.stopPropagation();
+            AudioSys.resume();
+            openCompleteCard();
+          });
+          cItem.appendChild(cBtn);
+          wrap.appendChild(cItem);
+        }
       }
       function openEndingList(){
         renderEndingList();
@@ -1956,6 +2036,12 @@
         $("endScreen").classList.add("show");
         AudioSys.setTrack("ending");
         AudioSys.pop(true);
+        /* 全エンディング達成の特典：今回の記録で初めて 9/9 になった瞬間だけ、
+           エンディング画面の上に特典カードを大きく出す（再訪時は出さない。
+           一覧からは 9/9 達成後いつでも見返せる） */
+        if(rec.isNew && rec.count >= ENDING_CATALOG.length){
+          setTimeout(function(){ openCompleteCard(); AudioSys.pop(true); }, 900);
+        }
       }
       /* ---------- エンドカード拡大表示 ---------- */
       function openCardZoomWithSrc(src){
@@ -1985,13 +2071,30 @@
       document.addEventListener("keydown", function(e){
         if(e.key === "Escape" && $("cardZoom").classList.contains("show")){ closeCardZoom(); }
       });
+      /* ---------- 全エンディング達成 特典カードの表示 ---------- */
+      function openCompleteCard(){
+        $("completeImg").src = COMPLETE_CARD_SRC;
+        $("completeModal").classList.add("show");
+      }
+      function closeCompleteCard(){
+        $("completeModal").classList.remove("show");
+      }
+      $("completeClose").addEventListener("click", function(e){
+        e.stopPropagation(); closeCompleteCard();
+      });
+      $("completeModal").addEventListener("click", function(e){
+        if(e.target === this){ closeCompleteCard(); }
+      });
+      document.addEventListener("keydown", function(e){
+        if(e.key === "Escape" && $("completeModal").classList.contains("show")){ closeCompleteCard(); }
+      });
       /* ---------- キャラクターシート（タイトル画面でキャラをタップ） ---------- */
       var SHEETS = {
-        hero:    { src:"assets/sheet-hero.jpg?v=20261111f",    label:"主人公（あなた）" },
+        hero:    { src:"assets/sheet-hero.jpg?v=20261111i",    label:"主人公（あなた）" },
         shiori:  { src:"assets/sheet-shiori.jpg?v=20261111g",  label:"朝倉 栞（先輩）" },
         hina:    { src:"assets/sheet-hina.jpg?v=20261111h",    label:"小日向 陽菜（同級生）" },
         tsumugi: { src:"assets/sheet-tsumugi.jpg?v=20261111h", label:"白瀬 紬（後輩）" },
-        master:  { src:"assets/sheet-master.jpg?v=20261111f",  label:"マスター（店主）" }
+        master:  { src:"assets/sheet-master.jpg?v=20261111i",  label:"マスター（店主）" }
       };
       function openSheet(key){
         var s = SHEETS[key];
