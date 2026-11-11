@@ -2,9 +2,6 @@
 <html lang="ja">
   <head>
     <meta charset="utf-8" />
-    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
-    <meta name="apple-mobile-web-app-title" content="ピザ屋バイト" />
-    <meta name="mobile-web-app-capable" content="yes" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
     <meta name="color-scheme" content="light" />
     <link rel="icon" href="data:," />
@@ -389,6 +386,41 @@
         margin:0; text-align:center; font-size:12.5px; font-weight:700; color:#ffd9a8;
         pointer-events:none;
       }
+      /* ---------- キャラクターシート表示（タイトル画面でキャラをタップ） ---------- */
+      .title-cast figure{ cursor:pointer; }
+      .title-cast figure:active img{ transform:scale(.97); }
+      /* シートモーダルはタイトル画面（z-index:60）・エンディング一覧（80）・
+         エンドカード拡大（90）のどれよりも手前に出す */
+      #sheetModal{
+        position:absolute; inset:0; z-index:95;
+        display:none; align-items:center; justify-content:center;
+        background:rgba(8,4,2,.92); padding:18px;
+        cursor:zoom-out;
+      }
+      #sheetModal.show{ display:flex; }
+      /* 画像は縦横どちらの比率でも画面内に収まるよう contain で表示する
+         （あとから縦型シートに差し替えても直さなくて済むように） */
+      #sheetImg{
+        max-width:100%; max-height:100%; width:auto; height:auto;
+        object-fit:contain; display:block;
+        border-radius:12px; border:3px solid #ffd9a8;
+        box-shadow:0 18px 44px rgba(0,0,0,.6);
+        background:#f7ecd9;
+      }
+      #sheetClose{
+        position:absolute; top:calc(12px + env(safe-area-inset-top)); right:12px;
+        width:44px; height:44px; min-height:44px; padding:0;
+        background:rgba(30,20,14,.72); color:#fff; font-size:17px; font-weight:800;
+        border:2px solid rgba(255,255,255,.75); border-radius:999px;
+      }
+      .sheet-name{
+        position:absolute; top:calc(14px + env(safe-area-inset-top)); left:16px;
+        margin:0; color:#fff7ec; font-weight:900; font-size:15.5px; letter-spacing:.03em;
+        background:rgba(30,20,14,.68); border:1.5px solid rgba(255,217,168,.75);
+        border-radius:999px; padding:7px 16px 8px;
+        pointer-events:none; max-width:calc(100% - 84px);
+        white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+      }
       [hidden]{ display:none !important; }
       /* ---------- オープニング画面 ---------- */
       .op-view-btn{
@@ -563,23 +595,23 @@
             <p class="game-sub">〜 赤いコンテナのお店で始まる、短編ラブストーリー 〜</p>
           </div>
           <div class="title-cast">
-            <figure>
+            <figure data-sheet="hero" role="button" tabindex="0" aria-label="主人公のキャラクターシートを見る">
               <img src="assets/hero-body.png?v=20261111e" alt="主人公の全身イラスト" />
               <figcaption id="heroCaption"><span id="heroNameLabel">あなた</span><span class="role">（主人公）</span></figcaption>
             </figure>
-            <figure>
+            <figure data-sheet="shiori" role="button" tabindex="0" aria-label="朝倉栞のキャラクターシートを見る">
               <img src="assets/shiori-body.png?v=20261111e" alt="朝倉栞の全身イラスト" />
               <figcaption>朝倉 栞<span class="role">（先輩）</span></figcaption>
             </figure>
-            <figure>
+            <figure data-sheet="hina" role="button" tabindex="0" aria-label="小日向陽菜のキャラクターシートを見る">
               <img src="assets/hina-body.png?v=20261111e" alt="小日向陽菜の全身イラスト" />
               <figcaption>小日向 陽菜<span class="role">（同級生）</span></figcaption>
             </figure>
-            <figure>
+            <figure data-sheet="tsumugi" role="button" tabindex="0" aria-label="白瀬紬のキャラクターシートを見る">
               <img src="assets/tsumugi-body.png?v=20261111e" alt="白瀬紬の全身イラスト" />
               <figcaption>白瀬 紬<span class="role">（後輩）</span></figcaption>
             </figure>
-            <figure>
+            <figure data-sheet="master" role="button" tabindex="0" aria-label="マスターのキャラクターシートを見る">
               <img src="assets/master-body.png?v=20261111e" alt="店主マスターの全身イラスト" />
               <figcaption>マスター<span class="role">（店主）</span></figcaption>
             </figure>
@@ -593,7 +625,7 @@
           <button class="start-btn" id="startBtn" type="button">バイトをはじめる</button>
           <button class="op-view-btn" id="opViewBtn" type="button">♪ オープニングを見る</button>
           <button class="ending-count-btn" id="endingListBtn" type="button" aria-label="エンディング一覧を開く">エンディング達成 <span class="ending-count-num" id="endingCountText">0/9</span><span class="ending-count-arrow">一覧 ›</span></button>
-          <p class="title-note">画面タップで会話が進みます。所要時間は5〜10分ほど。<br />選択肢で3人の好感度が変わり、結末が分岐します。</p>
+          <p class="title-note">画面タップで会話が進みます。所要時間は5〜10分ほど。<br />選択肢で3人の好感度が変わり、結末が分岐します。<br />上のキャラ（立ち絵・名前）をタップすると、キャラクターシートが見られます。</p>
         </div>
       </section>
 
@@ -652,6 +684,14 @@
       <div id="cardZoom" role="dialog" aria-label="エンドカード拡大表示">
         <img id="cardZoomImg" alt="エンドカード（拡大表示）" />
         <button id="cardZoomClose" type="button" aria-label="拡大表示を閉じる">✕</button>
+        <p class="card-zoom-hint">タップで閉じる</p>
+      </div>
+
+      <!-- キャラクターシート表示（タイトル画面でキャラをタップ） -->
+      <div id="sheetModal" role="dialog" aria-label="キャラクターシート">
+        <p class="sheet-name" id="sheetName"></p>
+        <img id="sheetImg" alt="キャラクターシート" />
+        <button id="sheetClose" type="button" aria-label="シートを閉じる">✕</button>
         <p class="card-zoom-hint">タップで閉じる</p>
       </div>
     </main>
@@ -1702,6 +1742,7 @@
         if(choiceEl.classList.contains("show")) return;
         if($("statusModal").classList.contains("show")) return;
         if($("endingModal").classList.contains("show")) return;
+        if($("sheetModal").classList.contains("show")) return;
         if(typing){
           if(typeTimer) clearInterval(typeTimer);
           typing = false; textEl.textContent = fullText; return;
@@ -1940,6 +1981,53 @@
       });
       document.addEventListener("keydown", function(e){
         if(e.key === "Escape" && $("cardZoom").classList.contains("show")){ closeCardZoom(); }
+      });
+      /* ---------- キャラクターシート（タイトル画面でキャラをタップ） ---------- */
+      var SHEETS = {
+        hero:    { src:"assets/sheet-hero.jpg?v=20261111f",    label:"主人公（あなた）" },
+        shiori:  { src:"assets/sheet-shiori.jpg?v=20261111g",  label:"朝倉 栞（先輩）" },
+        hina:    { src:"assets/sheet-hina.jpg?v=20261111f",    label:"小日向 陽菜（同級生）" },
+        tsumugi: { src:"assets/sheet-tsumugi.jpg?v=20261111f", label:"白瀬 紬（後輩）" },
+        master:  { src:"assets/sheet-master.jpg?v=20261111f",  label:"マスター（店主）" }
+      };
+      function openSheet(key){
+        var s = SHEETS[key];
+        if(!s) return;
+        $("sheetImg").src = s.src;
+        $("sheetName").textContent = s.label;
+        $("sheetModal").classList.add("show");
+      }
+      function closeSheet(){
+        $("sheetModal").classList.remove("show");
+        $("sheetImg").removeAttribute("src");
+      }
+      var castFigures = document.querySelectorAll(".title-cast figure[data-sheet]");
+      for(var ci = 0; ci < castFigures.length; ci++){
+        (function(fig){
+          fig.addEventListener("click", function(e){
+            e.stopPropagation();
+            AudioSys.resume();
+            AudioSys.setTrack("title");
+            if(AudioSys.on) AudioSys.startMusic();
+            openSheet(fig.getAttribute("data-sheet"));
+          });
+          fig.addEventListener("keydown", function(e){
+            if(e.key === "Enter" || e.key === " "){
+              e.preventDefault();
+              e.stopPropagation();
+              AudioSys.resume();
+              openSheet(fig.getAttribute("data-sheet"));
+            }
+          });
+        })(castFigures[ci]);
+      }
+      /* シート表示は、画像・背景・✕ボタンのどこをタップしても閉じる */
+      $("sheetModal").addEventListener("click", function(e){
+        e.stopPropagation();
+        closeSheet();
+      });
+      document.addEventListener("keydown", function(e){
+        if(e.key === "Escape" && $("sheetModal").classList.contains("show")){ closeSheet(); }
       });
       /* ================= オープニング（歌入りOP） ================= */
       /* 歌の音源は assets/op-song.mp3（ユーザーが用意した実音源・68.6秒）。
@@ -2228,6 +2316,7 @@
       $("toTitleBtn").addEventListener("click", function(){
         state = null;
         closeCardZoom();
+        closeSheet();
         closeEndingList();
         refreshEndingCount();
         $("endScreen").classList.remove("show");
