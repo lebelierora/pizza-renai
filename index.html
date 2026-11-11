@@ -2,9 +2,6 @@
 <html lang="ja">
   <head>
     <meta charset="utf-8" />
-    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
-    <meta name="apple-mobile-web-app-title" content="ピザ屋バイト" />
-    <meta name="mobile-web-app-capable" content="yes" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
     <meta name="color-scheme" content="light" />
     <link rel="icon" href="data:," />
@@ -391,12 +388,31 @@
       #opProgressBar{ display:block; height:100%; width:0; background:#ffb03a; border-radius:999px; }
       .op-btns{ display:flex; gap:8px; justify-content:flex-end; }
       .op-skip{ background:rgba(216,64,42,.88); border-color:#ffd9a8; }
+      /* キャラ名は画面の隅ではなく、立ち絵の右そば（肩〜腕の高さ）に
+         名札のように寄せて置く。名前と役割を2段にして幅を抑え、
+         狭い画面でも立ち絵にくっついて見える位置に収める */
       .op-caption{
-        position:absolute; top:calc(66px + env(safe-area-inset-top)); left:50%; transform:translateX(-50%);
-        margin:0; z-index:6; white-space:nowrap;
-        background:rgba(30,20,14,.66); color:#ffe9c4;
-        border:1.5px solid rgba(255,217,168,.7); border-radius:999px;
-        padding:5px 16px; font-size:15px; font-weight:800;
+        position:absolute; top:43%; left:calc(50% + clamp(60px, 10vw, 104px));
+        margin:0; z-index:6;
+        display:flex; flex-direction:column; gap:1px;
+        background:rgba(30,20,14,.68); color:#fff7ec;
+        border:1.5px solid rgba(255,217,168,.75); border-radius:14px;
+        padding:8px 14px 9px;
+        box-shadow:0 10px 22px rgba(0,0,0,.35);
+        pointer-events:none;
+      }
+      .op-cap-name{ font-size:16px; font-weight:900; letter-spacing:.04em; line-height:1.3; white-space:nowrap; }
+      .op-cap-role{ font-size:11px; font-weight:800; color:#ffd9a8; letter-spacing:.08em; line-height:1.3; white-space:nowrap; }
+      /* 出し方：ふわっと浮き出る（透けながら少し下から浮き上がる） */
+      .op-caption.float-in{ animation:opCaptionFloat .9s cubic-bezier(.22,.8,.3,1) both; }
+      @keyframes opCaptionFloat{
+        0%{ opacity:0; transform:translateY(18px) scale(.95); }
+        55%{ opacity:1; }
+        100%{ opacity:1; transform:translateY(0) scale(1); }
+      }
+      @media (max-width:560px){
+        .op-caption{ top:41%; left:calc(50% + 46px); padding:7px 12px 8px; }
+        .op-cap-name{ font-size:14.5px; }
       }
       .op-lyric-wrap{
         position:absolute; left:16px; right:16px; bottom:calc(20px + env(safe-area-inset-bottom));
@@ -415,6 +431,7 @@
       @media (prefers-reduced-motion: reduce){
         .op-slide.active .op-bg{ animation:none; }
         .op-lyric.swap{ animation:none; }
+        .op-caption.float-in{ animation:none; }
       }
       @media (max-height:700px){
         #endCard{ max-height:29dvh; }
@@ -1691,35 +1708,45 @@
          曲名は歌詞案の題名「あかいろのときめき」で統一し、OP内に
          曲名カード（曲名だけを見せる場面）は置かない（最終ロゴの
          クレジット表記のみ）。
-         歌詞テロップは実歌唱のタイミングに同期させる（均等割りだと
-         後半ほど表示が遅れてズレるため、行ごとに実測の区間で出す）。
-         イントロ（0〜9.6秒）とアウトロ（53.6〜68.6秒）は歌が無いので
-         歌詞を出さない。8行目は前半「名前を呼んで」（41.1〜45.6）と
-         後半「もう一歩近くへ」（45.6〜53.6）で歌い分けられるため、
-         同じ夜景スライドのままテロップだけを切り替える（slide番号で
-         表示スライドを指定し、テロップ切替とスライド切替を分離）。
-         アウトロ約15秒でタイトルロゴを表示し、音源の終了とほぼ
-         同時に終わる。スキップ可。
-         音源が読めない場合のみ、シンセのインスト版OPテーマで代替し
-         「準備中」の注記を出す。
+         歌詞テロップの区間は、op-song.mp3を単語単位で測った実測値
+         （動画内蔵字幕は実歌唱より遅れていたため使わない）：
+           イントロ 0.0〜8.7（歌詞なし）
+           1行目 8.7〜13.6／2行目 14.0〜18.1／3行目 18.1〜22.0
+           4行目 22.3〜26.0／5行目 26.0〜33.1／6行目 33.1〜37.8
+           7行目 38.0〜41.2／8行目前半 41.2〜45.8／8行目後半 45.9〜53.5
+           アウトロ 53.5〜68.6（歌詞なし）
+         行と行の間の無歌区間（13.6〜14.0、22.0〜22.3、37.8〜38.0、
+         45.8〜45.9）は歌詞を出さず、スライドは直前のまま据え置く。
+         8行目は同じ夜景スライドのままテロップだけを切り替える。
+         切り替えはタイマー（setTimeout）ではなく、音源の再生位置
+         （opAudio.currentTime）を毎フレーム読んで同期させる。これにより
+         端末ごとのタイマー誤差や読み込み待ちでテロップがズレない。
+         音源が使えない場合（読込失敗時・音OFF時）だけ、開始時刻からの
+         経過時間で同じ区間表を進める代替動作にする。
+         アウトロでタイトルロゴを表示し、音源の終了とほぼ同時に終わる。
+         スキップ可。
          mode="game"：終了/スキップで本編開始。mode="replay"：終了でタイトルへ戻る */
-      var OP_SLIDES = [
-        { slide:0, dur:9600,  lyric:"", caption:"" },
-        { slide:1, dur:4000,  lyric:"赤いコンテナ　窯の火がゆれる", caption:"" },
-        { slide:2, dur:4500,  lyric:"初めてのエプロン　少し曲がってる", caption:"朝倉 栞（先輩）" },
-        { slide:3, dur:3800,  lyric:"先輩の笑顔　同級生の声", caption:"小日向 陽菜（同級生）" },
-        { slide:4, dur:4200,  lyric:"後輩のメモ帳　広がる世界", caption:"白瀬 紬（後輩）" },
-        { slide:5, dur:7000,  lyric:"焼きたての香りと　胸の高鳴りは", caption:"マスター（店主）" },
-        { slide:6, dur:4500,  lyric:"きっと同じくらい熱いんだ", caption:"{name}（主人公）" },
-        { slide:7, dur:3500,  lyric:"あかいろピザで始まる物語", caption:"" },
-        { slide:8, dur:4500,  lyric:"名前を呼んで", caption:"" },
-        { slide:8, dur:8000,  lyric:"もう一歩近くへ", caption:"" },
-        { slide:9, dur:15000, lyric:"", caption:"" }
+      var OP_SEGMENTS = [
+        { start:0.0,  slide:0, lyric:"", caption:"" },
+        { start:8.7,  slide:1, lyric:"赤いコンテナ　窯の火がゆれる", caption:"" },
+        { start:13.6, slide:1, lyric:"", caption:"" },
+        { start:14.0, slide:2, lyric:"初めてのエプロン　少し曲がってる", caption:"朝倉 栞（先輩）" },
+        { start:18.1, slide:3, lyric:"先輩の笑顔　同級生の声", caption:"小日向 陽菜（同級生）" },
+        { start:22.0, slide:3, lyric:"", caption:"小日向 陽菜（同級生）" },
+        { start:22.3, slide:4, lyric:"後輩のメモ帳　広がる世界", caption:"白瀬 紬（後輩）" },
+        { start:26.0, slide:5, lyric:"焼きたての香りと　胸の高鳴りは", caption:"マスター（店主）" },
+        { start:33.1, slide:6, lyric:"きっと同じくらい熱いんだ", caption:"{name}（主人公）" },
+        { start:37.8, slide:6, lyric:"", caption:"{name}（主人公）" },
+        { start:38.0, slide:7, lyric:"あかいろピザで始まる物語", caption:"" },
+        { start:41.2, slide:8, lyric:"名前を呼んで", caption:"" },
+        { start:45.8, slide:8, lyric:"", caption:"" },
+        { start:45.9, slide:8, lyric:"もう一歩近くへ", caption:"" },
+        { start:53.5, slide:9, lyric:"", caption:"" }
       ];
-      var OP_TOTAL = 0;
-      for(var oi = 0; oi < OP_SLIDES.length; oi++){ OP_TOTAL += OP_SLIDES[oi].dur; }
+      var OP_TOTAL_SEC = 68.6;
       var opActive = false, opMode = "game", opTimer = null, opWatchdog = null;
       var opUsingFile = false, opFallback = false, opFileState = "unknown";
+      var opRafId = null, opWallStart = 0, opCurrentSeg = -1, opLastCaption = "";
       function syncSoundBtns(){
         var t = AudioSys.on ? "♪ 音 ON" : "♪ 音 OFF";
         $("soundBtn").textContent = t;
@@ -1736,6 +1763,15 @@
         }
         if(opActive){
           if(opUsingFile){
+            /* 音OFFの間もテロップは経過時間で進んでいるので、再開時は
+               音源の再生位置を現在の表示位置まで進めて同期を保つ */
+            try{
+              var wallSec = (performance.now() - opWallStart) / 1000;
+              var au = $("opAudio");
+              if(wallSec > 0 && wallSec < OP_TOTAL_SEC && Math.abs(au.currentTime - wallSec) > 0.4){
+                au.currentTime = wallSec;
+              }
+            }catch(e){}
             var p = null;
             try{ p = $("opAudio").play(); }catch(e){}
             if(p && typeof p.catch === "function"){ p.catch(function(){}); }
@@ -1791,28 +1827,85 @@
       $("opAudio").addEventListener("ended", function(){
         if(opActive && opUsingFile) endOpening();
       });
-      function runOpSlide(i){
-        if(!opActive) return;
-        if(i >= OP_SLIDES.length){ endOpening(); return; }
-        var data = OP_SLIDES[i];
+      /* 現在の再生位置（秒）。音源再生中は opAudio.currentTime を正とし、
+         音源が使えない場合のみ開始時刻からの経過時間で代替する */
+      function opElapsedSec(){
+        var a = $("opAudio");
+        if(opUsingFile && AudioSys.on && a){
+          return a.currentTime || 0;
+        }
+        return (performance.now() - opWallStart) / 1000;
+      }
+      function applyOpSegment(i){
+        var data = OP_SEGMENTS[i];
+        if(!data) return;
+        opCurrentSeg = i;
         var slides = document.querySelectorAll(".op-slide");
         for(var j = 0; j < slides.length; j++){ slides[j].classList.toggle("active", j === data.slide); }
         var lyricEl = $("opLyric");
         lyricEl.classList.remove("swap");
         void lyricEl.offsetWidth;
-        /* 歌の無い区間（イントロ・アウトロ）は歌詞枠ごと隠す */
+        /* 歌の無い区間（イントロ・アウトロ・行間）は歌詞枠ごと隠す */
         lyricEl.hidden = !data.lyric;
         lyricEl.textContent = data.lyric;
         if(data.lyric) lyricEl.classList.add("swap");
+        /* キャラ名は立ち絵のそばの名札に、名前／役割の2段で出す。
+           前の区間と同じ名前のとき（行間の無歌区間など）は出し直さず、
+           新しい名前になったときだけ、ふわっと浮き出る動きを付ける */
         var cap = $("opCaption");
         var heroName = $("nameInput").value.trim() || "ハルト";
         var capText = data.caption ? data.caption.replace("{name}", heroName) : "";
-        if(capText){ cap.textContent = capText; cap.hidden = false; } else { cap.hidden = true; }
-        opTimer = setTimeout(function(){ runOpSlide(i + 1); }, data.dur);
+        if(capText){
+          if(capText !== opLastCaption){
+            var m = capText.match(/^(.*)（(.+)）$/);
+            cap.textContent = "";
+            var nameSpan = document.createElement("span");
+            nameSpan.className = "op-cap-name";
+            nameSpan.textContent = m ? m[1] : capText;
+            cap.appendChild(nameSpan);
+            if(m){
+              var roleSpan = document.createElement("span");
+              roleSpan.className = "op-cap-role";
+              roleSpan.textContent = m[2];
+              cap.appendChild(roleSpan);
+            }
+            cap.classList.remove("float-in");
+            void cap.offsetWidth;
+            cap.hidden = false;
+            cap.classList.add("float-in");
+          } else {
+            cap.hidden = false;
+          }
+          opLastCaption = capText;
+        } else {
+          cap.hidden = true;
+          cap.classList.remove("float-in");
+          opLastCaption = "";
+        }
+      }
+      function opSegmentAt(sec){
+        var idx = 0;
+        for(var k = 0; k < OP_SEGMENTS.length; k++){
+          if(sec >= OP_SEGMENTS[k].start) idx = k; else break;
+        }
+        return idx;
+      }
+      /* 毎フレーム、音源の再生位置から表示区間と進行バーを更新する */
+      function opTick(){
+        if(!opActive) return;
+        var sec = opElapsedSec();
+        if(sec >= OP_TOTAL_SEC){ endOpening(); return; }
+        var bar = $("opProgressBar");
+        bar.style.width = Math.max(0, Math.min(100, sec / OP_TOTAL_SEC * 100)) + "%";
+        var idx = opSegmentAt(sec);
+        if(idx !== opCurrentSeg) applyOpSegment(idx);
+        opRafId = requestAnimationFrame(opTick);
       }
       function startOpening(mode){
         if(opActive) return;
         opMode = mode; opActive = true; opFallback = false; opUsingFile = false;
+        opCurrentSeg = -1;
+        opWallStart = performance.now();
         $("titleScreen").classList.remove("show");
         $("endScreen").classList.remove("show");
         $("opNote").hidden = true;
@@ -1820,19 +1913,20 @@
         syncSoundBtns();
         var bar = $("opProgressBar");
         bar.style.transition = "none"; bar.style.width = "0%";
-        void bar.offsetWidth;
-        bar.style.transition = "width " + OP_TOTAL + "ms linear";
-        bar.style.width = "100%";
         AudioSys.resume();
         AudioSys.stopMusic();
-        runOpSlide(0);
+        applyOpSegment(0);
         attemptOpAudio();
+        if(opRafId) cancelAnimationFrame(opRafId);
+        opRafId = requestAnimationFrame(opTick);
       }
       function endOpening(){
         if(!opActive) return;
         opActive = false;
+        if(opRafId){ cancelAnimationFrame(opRafId); opRafId = null; }
         if(opTimer){ clearTimeout(opTimer); opTimer = null; }
         if(opWatchdog){ clearTimeout(opWatchdog); opWatchdog = null; }
+        opCurrentSeg = -1;
         var wasFile = opUsingFile, wasFallback = opFallback;
         opUsingFile = false; opFallback = false;
         if(wasFile){ var a = $("opAudio"); try{ a.pause(); a.currentTime = 0; }catch(e){} }
