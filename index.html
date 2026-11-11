@@ -2,9 +2,6 @@
 <html lang="ja">
   <head>
     <meta charset="utf-8" />
-    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
-    <meta name="apple-mobile-web-app-title" content="ピザ屋バイト" />
-    <meta name="mobile-web-app-capable" content="yes" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
     <meta name="color-scheme" content="light" />
     <link rel="icon" href="data:," />
@@ -255,6 +252,55 @@
         background:var(--accent); color:#fff; border:none; border-radius:10px;
         font-size:16px; font-weight:800; padding:10px;
       }
+      /* ---------- エンディング回収（タイトル画面の達成表示＋一覧） ---------- */
+      .ending-count-btn{
+        margin-top:10px;
+        background:rgba(255,255,255,.65); color:#7a3a1c;
+        border:2.5px solid var(--wood); border-radius:999px;
+        font-size:14.5px; font-weight:800; padding:9px 22px; min-height:44px;
+        display:inline-flex; align-items:center; gap:8px;
+      }
+      .ending-count-btn:active{ transform:scale(.97); }
+      .ending-count-btn .ending-count-num{ color:var(--accent-dark); font-size:16px; font-weight:900; }
+      .ending-count-btn .ending-count-arrow{ color:#a9713f; font-weight:900; }
+      #endingModal{
+        position:absolute; inset:0; z-index:80;
+        display:none; align-items:center; justify-content:center;
+        background:rgba(15,9,6,.55); padding:20px;
+      }
+      #endingModal.show{ display:flex; }
+      .ending-modal-card{
+        background:var(--paper); border-radius:16px; border:3px solid var(--wood);
+        padding:20px 20px 18px; width:min(94%,460px);
+        max-height:calc(100dvh - 40px); overflow-y:auto;
+        box-shadow:0 12px 30px rgba(0,0,0,.4);
+        text-align:left;
+      }
+      .ending-modal-card h2{ margin:0 0 4px; font-size:18px; color:var(--accent-dark); }
+      .ending-modal-count{ margin:0 0 12px; font-size:13.5px; font-weight:800; color:#8a5a33; }
+      .ending-item{
+        display:flex; align-items:center; gap:12px;
+        border:2px solid #d9c3a5; border-radius:12px;
+        background:#fffdf8; padding:10px 12px; margin-bottom:9px;
+      }
+      .ending-item.locked{ background:#efe7d9; border-style:dashed; }
+      .ending-thumb{
+        flex:none; width:58px; height:58px; object-fit:cover; display:block;
+        border-radius:8px; border:2px solid #e8d5b5; background:#f7ecd9;
+      }
+      .ending-item-main{ flex:1 1 auto; min-width:0; }
+      .ending-item-name{ font-size:14.5px; font-weight:800; line-height:1.45; color:var(--ink); word-break:break-word; }
+      .ending-item.locked .ending-item-name{ color:#9a8a76; letter-spacing:.18em; }
+      .ending-item-date{ font-size:12px; font-weight:700; color:#8a5a33; margin-top:2px; }
+      .ending-item.locked .ending-item-date{ color:#a08b6f; letter-spacing:.05em; }
+      .ending-card-btn{
+        flex:none;
+        background:#fff; color:var(--accent-dark);
+        border:2px solid var(--accent); border-radius:999px;
+        font-size:12.5px; font-weight:800; padding:7px 13px; min-height:40px;
+      }
+      .ending-card-btn:active{ transform:scale(.96); }
+      .ending-modal-note{ margin:4px 0 0; font-size:11.5px; line-height:1.6; color:#8a5a33; }
       /* ---------- タイトル / エンディング ---------- */
       .screen{
         position:absolute; inset:0; z-index:60;
@@ -492,6 +538,17 @@
         </div>
       </div>
 
+      <!-- エンディング一覧（回収コレクション） -->
+      <div id="endingModal" role="dialog" aria-label="エンディング一覧">
+        <div class="ending-modal-card">
+          <h2>エンディング一覧</h2>
+          <p class="ending-modal-count" id="endingModalCount"></p>
+          <div id="endingList"></div>
+          <p class="ending-modal-note">記録はこの端末のブラウザに保存されます。まだ見ていない結末は、名前を伏せて表示しています。</p>
+          <button class="status-close" id="endingClose" type="button">閉じる</button>
+        </div>
+      </div>
+
       <!-- タイトル画面 -->
       <section class="screen show" id="titleScreen">
         <div class="title-stage">
@@ -532,6 +589,7 @@
           </div>
           <button class="start-btn" id="startBtn" type="button">バイトをはじめる</button>
           <button class="op-view-btn" id="opViewBtn" type="button">♪ オープニングを見る</button>
+          <button class="ending-count-btn" id="endingListBtn" type="button" aria-label="エンディング一覧を開く">エンディング達成 <span class="ending-count-num" id="endingCountText">0/9</span><span class="ending-count-arrow">一覧 ›</span></button>
           <p class="title-note">画面タップで会話が進みます。所要時間は5〜10分ほど。<br />選択肢で3人の好感度が変わり、結末が分岐します。</p>
         </div>
       </section>
@@ -1317,6 +1375,76 @@
       var TRAINING_ENDCARD = "assets/endcard-training.jpg?v=20261111e";
       /* 隠しエンディング（八方美人エンド）用カード：到達時は常時表示 */
       var HIDDEN_ENDCARD = "assets/endcard-hidden.jpg?v=20261111e";
+      /* ================= エンディング回収（コレクション） =================
+         ゲーム内に実在する全エンディングを対象にする。
+         ヒロイン個別エンドは、通常到達と一筋MAX到達（専用エンドカードが
+         出る到達）を別枠として数えるため、全9枠になる。
+         記録は端末のブラウザ（localStorage）に、初回到達日と一緒に残す。 */
+      var ENDING_CATALOG = [
+        { id:"asakura",     name:"栞 ―「いつもの」の先にあるもの" },
+        { id:"asakura_max", name:"栞 ―「いつもの」の先にあるもの（一筋MAX）" },
+        { id:"hina",        name:"陽菜 ― 同僚はじめました" },
+        { id:"hina_max",    name:"陽菜 ― 同僚はじめました（一筋MAX）" },
+        { id:"aoi",         name:"紬 ― メニューボードの約束" },
+        { id:"aoi_max",     name:"紬 ― メニューボードの約束（一筋MAX）" },
+        { id:"normal",      name:"通常 ― 修行は続く" },
+        { id:"zero",        name:"誰も選ばなかったエンド ― ピザに全振り" },
+        { id:"hidden",      name:"八方美人エンド ― みんなに優しくした結果" }
+      ];
+      var ENDING_STORE_KEY = "lebelier-pizza-renai-endings-v1";
+      /* 到達したエンディングキー（＋一筋MAXかどうか）からカタログIDを求める */
+      function endingCatalogId(key, maxedKey){
+        if((key === "asakura" || key === "hina" || key === "aoi") && maxedKey === key){
+          return key + "_max";
+        }
+        return key;
+      }
+      /* カタログIDにエンドカードがある場合はその画像、なければ null */
+      function endingCardSrcFor(catalogId){
+        if(catalogId === "asakura_max") return ENDCARDS.asakura;
+        if(catalogId === "hina_max") return ENDCARDS.hina;
+        if(catalogId === "aoi_max") return ENDCARDS.aoi;
+        if(catalogId === "zero") return NORMAL_ENDCARD;
+        if(catalogId === "normal") return TRAINING_ENDCARD;
+        if(catalogId === "hidden") return HIDDEN_ENDCARD;
+        return null;
+      }
+      function loadEndingCollection(){
+        try{
+          var raw = localStorage.getItem(ENDING_STORE_KEY);
+          if(!raw) return {};
+          var obj = JSON.parse(raw);
+          return (obj && typeof obj === "object") ? obj : {};
+        }catch(e){ return {}; }
+      }
+      function saveEndingCollection(col){
+        try{ localStorage.setItem(ENDING_STORE_KEY, JSON.stringify(col)); }catch(e){}
+      }
+      function endingAchievedCount(col){
+        var n = 0;
+        for(var i = 0; i < ENDING_CATALOG.length; i++){
+          if(col[ENDING_CATALOG[i].id]) n++;
+        }
+        return n;
+      }
+      /* 現在の到達エンディングを記録する。初回到達日を保持し、
+         { isNew, count } を返す（保存できない環境でもゲームは続行する） */
+      function recordCurrentEnding(){
+        if(!state || !state.currentEnding) return { isNew:false, count:endingAchievedCount(loadEndingCollection()) };
+        var id = endingCatalogId(state.currentEnding, state.maxed);
+        var col = loadEndingCollection();
+        var isNew = !col[id];
+        if(isNew){
+          col[id] = new Date().toISOString();
+          saveEndingCollection(col);
+        }
+        return { isNew:isNew, count:endingAchievedCount(col) };
+      }
+      function formatEndingDate(iso){
+        var d = new Date(iso);
+        if(isNaN(d.getTime())) return "";
+        return d.getFullYear() + "/" + (d.getMonth() + 1) + "/" + d.getDate();
+      }
       var MAXAFF = 6, THRESHOLD = 4;
       var state = null;
       var $ = function(id){ return document.getElementById(id); };
@@ -1570,6 +1698,7 @@
         if(!state || state.busy) return;
         if(choiceEl.classList.contains("show")) return;
         if($("statusModal").classList.contains("show")) return;
+        if($("endingModal").classList.contains("show")) return;
         if(typing){
           if(typeTimer) clearInterval(typeTimer);
           typing = false; textEl.textContent = fullText; return;
@@ -1621,6 +1750,97 @@
       $("statusModal").addEventListener("click", function(e){
         if(e.target === this){ this.classList.remove("show"); }
       });
+      /* ---------- エンディング回収：一覧の表示 ---------- */
+      function refreshEndingCount(){
+        var col = loadEndingCollection();
+        var n = endingAchievedCount(col);
+        var total = ENDING_CATALOG.length;
+        var t = $("endingCountText");
+        if(t) t.textContent = n + "/" + total;
+        return n;
+      }
+      function renderEndingList(){
+        var col = loadEndingCollection();
+        var n = endingAchievedCount(col);
+        $("endingModalCount").textContent = "達成 " + n + " / " + ENDING_CATALOG.length;
+        var wrap = $("endingList");
+        wrap.innerHTML = "";
+        ENDING_CATALOG.forEach(function(entry){
+          var achievedIso = col[entry.id];
+          var item = document.createElement("div");
+          if(achievedIso){
+            item.className = "ending-item";
+            var cardSrc = endingCardSrcFor(entry.id);
+            if(cardSrc){
+              var thumb = document.createElement("img");
+              thumb.className = "ending-thumb";
+              thumb.src = cardSrc;
+              thumb.alt = "";
+              item.appendChild(thumb);
+            }
+            var main = document.createElement("div");
+            main.className = "ending-item-main";
+            var nm = document.createElement("div");
+            nm.className = "ending-item-name";
+            nm.textContent = entry.name;
+            var dt = document.createElement("div");
+            dt.className = "ending-item-date";
+            var ds = formatEndingDate(achievedIso);
+            dt.textContent = ds ? (ds + " 達成") : "達成済み";
+            main.appendChild(nm); main.appendChild(dt);
+            item.appendChild(main);
+            if(cardSrc){
+              var btn = document.createElement("button");
+              btn.type = "button";
+              btn.className = "ending-card-btn";
+              btn.textContent = "カードを見る";
+              btn.addEventListener("click", function(ev){
+                ev.stopPropagation();
+                AudioSys.resume();
+                openCardZoomWithSrc(cardSrc);
+              });
+              item.appendChild(btn);
+            }
+          } else {
+            item.className = "ending-item locked";
+            var mainL = document.createElement("div");
+            mainL.className = "ending-item-main";
+            var nmL = document.createElement("div");
+            nmL.className = "ending-item-name";
+            nmL.textContent = "？？？";
+            var dtL = document.createElement("div");
+            dtL.className = "ending-item-date";
+            dtL.textContent = "未達成";
+            mainL.appendChild(nmL); mainL.appendChild(dtL);
+            item.appendChild(mainL);
+          }
+          wrap.appendChild(item);
+        });
+      }
+      function openEndingList(){
+        renderEndingList();
+        $("endingModal").classList.add("show");
+      }
+      function closeEndingList(){
+        $("endingModal").classList.remove("show");
+      }
+      $("endingListBtn").addEventListener("click", function(e){
+        e.stopPropagation();
+        AudioSys.resume();
+        AudioSys.setTrack("title");
+        if(AudioSys.on) AudioSys.startMusic();
+        openEndingList();
+      });
+      $("endingClose").addEventListener("click", function(e){
+        e.stopPropagation(); closeEndingList();
+      });
+      $("endingModal").addEventListener("click", function(e){
+        if(e.target === this){ closeEndingList(); }
+      });
+      document.addEventListener("keydown", function(e){
+        if(e.key === "Escape" && $("endingModal").classList.contains("show")){ closeEndingList(); }
+      });
+      refreshEndingCount();
       /* ---------- 音ON/OFF（OP再生中も同じ設定で連動する） ---------- */
       $("soundBtn").addEventListener("click", function(e){
         e.stopPropagation();
@@ -1668,7 +1888,17 @@
         }
         $("endTitle").textContent = end.title;
         $("endText").textContent = subst(end.text);
-        var rows = "<div>【" + end.label + "】到達</div>";
+        /* 到達した時点でコレクションへ自動記録する（一筋MAXは別枠） */
+        var rec = recordCurrentEnding();
+        refreshEndingCount();
+        var displayLabel = end.label;
+        if(state.maxed === key && (key === "asakura" || key === "hina" || key === "aoi")){
+          displayLabel = end.label + "（一筋MAX）";
+        }
+        var rows = "<div>【" + displayLabel + "】到達</div>";
+        rows += '<div style="font-size:13px;line-height:1.5;font-weight:800;color:#ffd9a8;">' +
+                (rec.isNew ? "エンディングを記録しました" : "記録済みのエンディングです") +
+                "（達成 " + rec.count + "/" + ENDING_CATALOG.length + "）</div>";
         if(state.maxed === key){
           rows += '<div style="color:#ff9db4;font-weight:800;">💗 一筋ボーナスで ' + NAMES[key] + ' の好感度がMAXに！</div>';
         }
@@ -1681,13 +1911,15 @@
         AudioSys.pop(true);
       }
       /* ---------- エンドカード拡大表示 ---------- */
-      function openCardZoom(){
-        var cardEl = $("endCard");
-        if(!cardEl.classList.contains("show")) return;
-        var src = cardEl.getAttribute("src");
+      function openCardZoomWithSrc(src){
         if(!src) return;
         $("cardZoomImg").src = src;
         $("cardZoom").classList.add("show");
+      }
+      function openCardZoom(){
+        var cardEl = $("endCard");
+        if(!cardEl.classList.contains("show")) return;
+        openCardZoomWithSrc(cardEl.getAttribute("src"));
       }
       function closeCardZoom(){
         $("cardZoom").classList.remove("show");
@@ -1993,6 +2225,8 @@
       $("toTitleBtn").addEventListener("click", function(){
         state = null;
         closeCardZoom();
+        closeEndingList();
+        refreshEndingCount();
         $("endScreen").classList.remove("show");
         dialogEl.classList.remove("show");
         $("topBar").classList.remove("show");
