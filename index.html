@@ -5,9 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
     <meta name="color-scheme" content="light" />
     <link rel="icon" href="data:," />
-    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
-    <meta name="apple-mobile-web-app-title" content="ピザ屋バイト" />
-    <meta name="mobile-web-app-capable" content="yes" />
     <title>ピザ屋バイトと3人の常連さん</title>
     <style>
       :root{
@@ -1449,6 +1446,10 @@
       var NAMES = { asakura:"栞", hina:"陽菜", aoi:"紬" };
       /* 好感度MAX（一筋ボーナス）到達時のみ表示するエンドカード。未登録のヒロインはカードなし */
       var ENDCARDS = { asakura:"assets/endcard-shiori.jpg?v=20261111e", hina:"assets/endcard-hina.jpg?v=20261111e", aoi:"assets/endcard-tsumugi.jpg?v=20261111e" };
+      /* ヒロインの通常エンド（一筋MAXでない個別エンド）用カード。MAXカードとは別物。
+         登録のあるヒロインだけ通常エンドでもカードを表示する（現在は栞・紬。
+         陽菜の分が届いたらここに1行追加するだけでよい） */
+      var NORMAL_ENDCARDS = { asakura:"assets/endcard-shiori-normal.jpg?v=20261111m", aoi:"assets/endcard-tsumugi-normal.jpg?v=20261111n" };
       /* 全員好感度0の専用エンディング（zero）用カード */
       var NORMAL_ENDCARD = "assets/endcard-normal.jpg?v=20261111e";
       /* 通常エンディング（修行エンド）用カード：通常エンド時は常時表示 */
@@ -1488,6 +1489,10 @@
         if(catalogId === "asakura_max") return ENDCARDS.asakura;
         if(catalogId === "hina_max") return ENDCARDS.hina;
         if(catalogId === "aoi_max") return ENDCARDS.aoi;
+        /* ヒロインの通常エンド：カードが登録されている場合だけ返す */
+        if(catalogId === "asakura" || catalogId === "hina" || catalogId === "aoi"){
+          return NORMAL_ENDCARDS[catalogId] || null;
+        }
         if(catalogId === "zero") return NORMAL_ENDCARD;
         if(catalogId === "normal") return TRAINING_ENDCARD;
         if(catalogId === "hidden") return HIDDEN_ENDCARD;
@@ -1570,7 +1575,7 @@
           "tsumugi-body.png","tsumugi-normal-s2.png","tsumugi-confused-s2.png","tsumugi-shy-s2.png","tsumugi-smile-s2.png",
           "master-body.png","master-normal-s2.png","master-genki-s2.png","master-craft-s2.png","master-warm-s2.png",
           "top-shop.jpg","scene-interior.jpg","scene-night.jpg","scene-evening.jpg",
-          "endcard-shiori.jpg","endcard-hina.jpg","endcard-tsumugi.jpg","endcard-normal.jpg","endcard-training.jpg","endcard-hidden.jpg","arigato-card.jpg"];
+          "endcard-shiori.jpg","endcard-hina.jpg","endcard-tsumugi.jpg","endcard-shiori-normal.jpg","endcard-tsumugi-normal.jpg","endcard-normal.jpg","endcard-training.jpg","endcard-hidden.jpg","arigato-card.jpg"];
         for(var i = 0; i < files.length; i++){
           var im = new Image();
           im.src = "assets/" + files[i] + "?v=20261111e";
@@ -1995,6 +2000,7 @@
         var cardEl = $("endCard");
         var cardSrc = null;
         if(state.maxed === key && ENDCARDS[key]){ cardSrc = ENDCARDS[key]; }
+        else if(NORMAL_ENDCARDS[key]){ cardSrc = NORMAL_ENDCARDS[key]; }
         else if(key === "zero"){ cardSrc = NORMAL_ENDCARD; }
         else if(key === "normal"){ cardSrc = TRAINING_ENDCARD; }
         else if(key === "hidden"){ cardSrc = HIDDEN_ENDCARD; }
