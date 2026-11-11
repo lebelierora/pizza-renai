@@ -396,7 +396,7 @@
       <!-- タイトル画面 -->
       <section class="screen show" id="titleScreen">
         <div class="title-stage">
-          <img class="title-photo" src="assets/top-shop.jpg?v=20261111c" alt="赤いコンテナのピザ屋「あかいろピザ」の外観イラスト" />
+          <img class="title-photo" src="assets/top-shop.jpg?v=20261111d" alt="赤いコンテナのピザ屋「あかいろピザ」の外観イラスト" />
           <div class="title-scrim-top"></div>
           <div class="title-scrim-bottom"></div>
           <div class="title-head">
@@ -405,23 +405,23 @@
           </div>
           <div class="title-cast">
             <figure>
-              <img src="assets/hero-body.png?v=20261111c" alt="主人公の全身イラスト" />
+              <img src="assets/hero-body.png?v=20261111d" alt="主人公の全身イラスト" />
               <figcaption id="heroCaption"><span id="heroNameLabel">あなた</span><span class="role">（主人公）</span></figcaption>
             </figure>
             <figure>
-              <img src="assets/shiori-body.png?v=20261111c" alt="朝倉栞の全身イラスト" />
+              <img src="assets/shiori-body.png?v=20261111d" alt="朝倉栞の全身イラスト" />
               <figcaption>朝倉 栞<span class="role">（先輩）</span></figcaption>
             </figure>
             <figure>
-              <img src="assets/hina-body.png?v=20261111c" alt="小日向陽菜の全身イラスト" />
+              <img src="assets/hina-body.png?v=20261111d" alt="小日向陽菜の全身イラスト" />
               <figcaption>小日向 陽菜<span class="role">（同級生）</span></figcaption>
             </figure>
             <figure>
-              <img src="assets/tsumugi-body.png?v=20261111c" alt="白瀬紬の全身イラスト" />
+              <img src="assets/tsumugi-body.png?v=20261111d" alt="白瀬紬の全身イラスト" />
               <figcaption>白瀬 紬<span class="role">（後輩）</span></figcaption>
             </figure>
             <figure>
-              <img src="assets/master-body.png?v=20261111c" alt="店主マスターの全身イラスト" />
+              <img src="assets/master-body.png?v=20261111d" alt="店主マスターの全身イラスト" />
               <figcaption>マスター<span class="role">（店主）</span></figcaption>
             </figure>
           </div>
@@ -558,12 +558,12 @@
         '</svg>'
       };
 
-      document.getElementById("bg-exterior").innerHTML = '<img src="assets/top-shop.jpg?v=20261111c" alt="" />';
-      document.getElementById("bg-interior").innerHTML = '<img src="assets/scene-interior.jpg?v=20261111c" alt="" />';
+      document.getElementById("bg-exterior").innerHTML = '<img src="assets/top-shop.jpg?v=20261111d" alt="" />';
+      document.getElementById("bg-interior").innerHTML = '<img src="assets/scene-interior.jpg?v=20261111d" alt="" />';
       document.getElementById("bg-school").innerHTML = BG.school;
-      document.getElementById("bg-evening").innerHTML = '<img src="assets/scene-night.jpg?v=20261111c" alt="" />';
+      document.getElementById("bg-evening").innerHTML = '<img src="assets/scene-night.jpg?v=20261111d" alt="" />';
       /* 夕方（夕焼け）背景：栞の夕方場面用（ルート途中の閉店後・夕焼けの帰り道、最終イベント、エンディング）。エンドカードの夕焼けに合わせる */
-      document.getElementById("bg-sunset").innerHTML = '<img src="assets/scene-evening.jpg?v=20261111c" alt="" />';
+      document.getElementById("bg-sunset").innerHTML = '<img src="assets/scene-evening.jpg?v=20261111d" alt="" />';
       /* ================= 立ち絵SVG ================= */
       function faceParts(expr, blushColor){
         var eyes, mouth, blush = "";
@@ -1058,7 +1058,7 @@
             { ch:"aoi", ex:"smile" },
             { sp:"紬", tx:"……！ ……あんバターの、とろけ具合……完璧です……。……ありがとう……！" }
           ]},
-          { label:"誰の注文も平等に、淡々とこなす", fx:{}, steps:[
+          { label:"誰の注文も平等に、淡々とこなす", fx:{}, gate:"hidden", steps:[
             { bgBack:true },
             { sp:null, tx:"{name}は黙々とピザを焼き続けた。マスターが小さく頷いている。" }
           ]}
@@ -1139,14 +1139,35 @@
         ],
         text:"誰の心も掴めなかった代わりに、窯の火加減だけは完璧に掴んだ{name}。カウンター越しの呆れ顔に気づくのは、まだ先の話――。"
       };
+      /* 隠しエンディング（八方美人エンド）：全員の好感度が高いのに最終日に誰も選ばなかった場合 */
+      ENDINGS.hidden = {
+        label:"八方美人エンド", title:"八方美人エンド ― みんなに優しくした結果",
+        lines:[
+          { bg:"interior" },
+          { ch:"hina", ex:"serious" },
+          { sp:"陽菜", tx:"ねえ、はっきりしてよ！ 誰のピザが一番大事なの！？" },
+          { ch:"asakura", ex:"serious" },
+          { sp:"栞", tx:"全員の注文を平等に、ね。……ふふ、誰にも嫌われたくないのね" },
+          { ch:"aoi", ex:"confused" },
+          { sp:"紬", tx:"……わたしも……待ってたのに……" },
+          { ch:"manager", ex:"genki" },
+          { sp:"マスター", tx:"お、おいおい、3人とも落ち着けって！ 店の中で修羅場は勘弁してくれ――！" },
+          { ch:"hero", ex:"panic" },
+          { sp:"me", tx:"（全員を大事にしたかっただけなのに……なんでこうなった……！）" },
+          { sp:null, tx:"誰も選ばなかった優しさは、誰も救わなかった。{name}の繁忙日は、まだ終わらない――。" }
+        ],
+        text:"全員の心を掴みながら、最後に誰も選ばなかった{name}。詰め寄る3人と、慌てて止めに入るマスター。八方美人の代償は、静かに重かった――。"
+      };
       /* ================= エンジン ================= */
       var NAMES = { asakura:"栞", hina:"陽菜", aoi:"紬" };
       /* 好感度MAX（一筋ボーナス）到達時のみ表示するエンドカード。未登録のヒロインはカードなし */
-      var ENDCARDS = { asakura:"assets/endcard-shiori.jpg?v=20261111c", hina:"assets/endcard-hina.jpg?v=20261111c", aoi:"assets/endcard-tsumugi.jpg?v=20261111c" };
+      var ENDCARDS = { asakura:"assets/endcard-shiori.jpg?v=20261111d", hina:"assets/endcard-hina.jpg?v=20261111d", aoi:"assets/endcard-tsumugi.jpg?v=20261111d" };
       /* 全員好感度0の専用エンディング（zero）用カード */
-      var NORMAL_ENDCARD = "assets/endcard-normal.jpg?v=20261111c";
+      var NORMAL_ENDCARD = "assets/endcard-normal.jpg?v=20261111d";
       /* 通常エンディング（修行エンド）用カード：通常エンド時は常時表示 */
-      var TRAINING_ENDCARD = "assets/endcard-training.jpg?v=20261111c";
+      var TRAINING_ENDCARD = "assets/endcard-training.jpg?v=20261111d";
+      /* 隠しエンディング（八方美人エンド）用カード：到達時は常時表示 */
+      var HIDDEN_ENDCARD = "assets/endcard-hidden.jpg?v=20261111d";
       var MAXAFF = 6, THRESHOLD = 4;
       var state = null;
       var $ = function(id){ return document.getElementById(id); };
@@ -1156,7 +1177,7 @@
 
       function freshState(name){
         return { name:name, aff:{ asakura:0, hina:0, aoi:0 }, queue:SCRIPT.slice(),
-                 currentEnding:null, afterEnd:false, busy:false, maxed:null };
+                 currentEnding:null, afterEnd:false, busy:false, maxed:null, hidden:false };
       }
       function subst(t){ return t.replace(/\{name\}/g, state.name); }
       function setBg(name){
@@ -1171,7 +1192,7 @@
         hero:    { normal:"hero-normal-s2.png", noapron:"hero-noapron.png", panic:"hero-panic-s2.png", blush:"hero-shy-s2.png", shy:"hero-shy-s2.png", serious:"hero-serious-s2.png" },
         asakura: { normal:"shiori-normal-s2.png", tease:"shiori-tease-s2.png", blush:"shiori-shy-s2.png", serious:"shiori-honne-s2.png" },
         hina:    { normal:"hina-normal-s2.png", excited:"hina-excited-s2.png", expect:"hina-expect-s2.png", blush:"hina-shy-s2.png", serious:"hina-serious-s2.png" },
-        aoi:     { normal:"tsumugi-normal-s2.png", shy:"tsumugi-confused-s2.png", blush:"tsumugi-shy-s2.png", smile:"tsumugi-smile-s2.png" },
+        aoi:     { normal:"tsumugi-normal-s2.png", shy:"tsumugi-confused-s2.png", confused:"tsumugi-confused-s2.png", blush:"tsumugi-shy-s2.png", smile:"tsumugi-smile-s2.png" },
         manager: { normal:"master-normal-s2.png", genki:"master-genki-s2.png", craft:"master-craft-s2.png", warm:"master-warm-s2.png" }
       };
       /* ステータス画面のサムネイルも新しい立ち絵（-s2）に統一 */
@@ -1188,10 +1209,10 @@
           "tsumugi-body.png","tsumugi-normal-s2.png","tsumugi-confused-s2.png","tsumugi-shy-s2.png","tsumugi-smile-s2.png",
           "master-body.png","master-normal-s2.png","master-genki-s2.png","master-craft-s2.png","master-warm-s2.png",
           "top-shop.jpg","scene-interior.jpg","scene-night.jpg","scene-evening.jpg",
-          "endcard-shiori.jpg","endcard-hina.jpg","endcard-tsumugi.jpg","endcard-normal.jpg","endcard-training.jpg"];
+          "endcard-shiori.jpg","endcard-hina.jpg","endcard-tsumugi.jpg","endcard-normal.jpg","endcard-training.jpg","endcard-hidden.jpg"];
         for(var i = 0; i < files.length; i++){
           var im = new Image();
-          im.src = "assets/" + files[i] + "?v=20261111c";
+          im.src = "assets/" + files[i] + "?v=20261111d";
           if(im.decode){ im.decode().catch(function(){}); }
           PRELOADED.push(im);
         }
@@ -1218,7 +1239,7 @@
             cimg.decoding = "sync";
             charEl.appendChild(cimg);
           }
-          var csrc = "assets/" + file + "?v=20261111c";
+          var csrc = "assets/" + file + "?v=20261111d";
           if(cimg.getAttribute("src") !== csrc){ cimg.src = csrc; }
           if(SPRITE_CHARS[ch]){
             charEl.classList.remove("portrait"); layer.classList.remove("portrait-mode");
@@ -1324,6 +1345,7 @@
       }
       /* エンディングの行き先を、状態を変えずに先読みする（pickEndingと同じ判定） */
       function previewEnding(){
+        if(state.hidden) return "hidden";
         var aff = state.aff, best = null, bestVal = -1;
         ["asakura","hina","aoi"].forEach(function(k){
           if(aff[k] > bestVal){ bestVal = aff[k]; best = k; }
@@ -1341,6 +1363,8 @@
         return aff.asakura >= THRESHOLD - 1 && aff.asakura + 1 >= aff.hina && aff.asakura + 1 >= aff.aoi;
       }
       function pickEnding(){
+        /* 隠しエンディング（八方美人エンド）が発動済みなら最優先でそちらへ */
+        if(state.hidden) return "hidden";
         var aff = state.aff, best = null, bestVal = -1;
         ["asakura","hina","aoi"].forEach(function(k){
           if(aff[k] > bestVal){ bestVal = aff[k]; best = k; }
@@ -1385,6 +1409,10 @@
         }
         AudioSys.pop(total > 0);
         if(firstKey){ showPopup(firstKey, opt.fx[firstKey]); }
+        /* 隠しエンディング判定：最終日に「誰も選ばない」を選んだ時点で全員が好感度しきい値以上なら発動 */
+        if(opt.gate === "hidden" && ["asakura","hina","aoi"].every(function(k){ return state.aff[k] >= THRESHOLD; })){
+          state.hidden = true;
+        }
         var steps = (opt.steps || []).slice();
         for(var i = steps.length - 1; i >= 0; i--){ state.queue.unshift(steps[i]); }
         setTimeout(processNext, firstKey ? 950 : 60);
@@ -1420,16 +1448,16 @@
         var heroName = state ? state.name : "あなた";
         var safeName = heroName.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
         rows += '<div class="status-hero">' +
-                '<img class="status-thumb cutout" src="assets/' + STATUS_IMG.hero + '?v=20261111c" alt="" />' +
+                '<img class="status-thumb cutout" src="assets/' + STATUS_IMG.hero + '?v=20261111d" alt="" />' +
                 '<div class="status-hero-body"><div class="status-hero-name">' + safeName + '<span class="role">主人公</span></div>' +
                 '<div class="status-hero-prof">20歳｜調理専門学校 2年生<br />ピザ屋で働き始めた新入りバイト<br />ピザ作りは、まだまだ練習中<br />不器用だけど、何事にも一生懸命</div></div></div>';
         ["asakura","hina","aoi"].forEach(function(k){
           rows += '<div class="status-row"><span class="status-who">' +
-                  '<img class="status-thumb cutout" src="assets/' + STATUS_IMG[k] + '?v=20261111c" alt="" />' + NAMES[k] + '</span>' +
+                  '<img class="status-thumb cutout" src="assets/' + STATUS_IMG[k] + '?v=20261111d" alt="" />' + NAMES[k] + '</span>' +
                   '<span class="hearts">' + hearts(state ? state.aff[k] : 0) + '</span></div>';
         });
         rows += '<div class="status-hero" style="border-bottom:none;border-top:2px solid #d9c3a5;margin-top:10px;padding-top:12px;margin-bottom:0;padding-bottom:2px;">' +
-                '<img class="status-thumb cutout" src="assets/' + STATUS_IMG.manager + '?v=20261111c" alt="" />' +
+                '<img class="status-thumb cutout" src="assets/' + STATUS_IMG.manager + '?v=20261111d" alt="" />' +
                 '<div class="status-hero-body"><div class="status-hero-name">マスター<span class="role">店主</span></div>' +
                 '<div class="status-hero-prof">40代、気持ちは20代！<br />赤いピザ屋の店主<br />新しいことが好きな、陽気な兄貴分<br />ピザを焼くときは、頼れる職人<br />主人公と常連たちを温かく見守る</div></div></div>';
         $("statusRows").innerHTML = rows;
@@ -1482,6 +1510,7 @@
         if(state.maxed === key && ENDCARDS[key]){ cardSrc = ENDCARDS[key]; }
         else if(key === "zero"){ cardSrc = NORMAL_ENDCARD; }
         else if(key === "normal"){ cardSrc = TRAINING_ENDCARD; }
+        else if(key === "hidden"){ cardSrc = HIDDEN_ENDCARD; }
         if(cardSrc){
           cardEl.src = cardSrc;
           cardEl.classList.add("show");
