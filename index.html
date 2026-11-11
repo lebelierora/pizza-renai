@@ -5,9 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
     <meta name="color-scheme" content="light" />
     <link rel="icon" href="data:," />
-    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
-    <meta name="apple-mobile-web-app-title" content="ピザ屋バイト" />
-    <meta name="mobile-web-app-capable" content="yes" />
     <title>ピザ屋バイトと3人の常連さん</title>
     <style>
       :root{
@@ -340,6 +337,82 @@
         margin:0; text-align:center; font-size:12.5px; font-weight:700; color:#ffd9a8;
         pointer-events:none;
       }
+      [hidden]{ display:none !important; }
+      /* ---------- オープニング画面 ---------- */
+      .op-view-btn{
+        margin-top:12px;
+        background:rgba(255,255,255,.65); color:var(--accent-dark);
+        border:2.5px solid var(--accent); border-radius:999px;
+        font-size:15px; font-weight:800; padding:10px 24px; min-height:44px;
+      }
+      .op-view-btn:active{ transform:scale(.97); }
+      #opScreen{
+        padding:0; background:#17100c; z-index:70;
+        justify-content:flex-start; align-items:stretch; overflow:hidden;
+      }
+      .op-stage{ position:absolute; inset:0; }
+      .op-slide{ position:absolute; inset:0; opacity:0; transition:opacity .8s ease; pointer-events:none; }
+      .op-slide.active{ opacity:1; }
+      .op-slide .op-bg{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; }
+      .op-slide.active .op-bg{ animation:opZoom 4.2s ease-out forwards; }
+      @keyframes opZoom{ from{ transform:scale(1); } to{ transform:scale(1.07); } }
+      .op-slide .op-char{
+        position:absolute; left:50%; bottom:0; transform:translateX(-50%);
+        height:min(74%,600px); max-width:88vw; object-fit:contain; display:block;
+        filter:drop-shadow(0 12px 16px rgba(0,0,0,.45));
+      }
+      .op-logo{
+        position:absolute; inset:0; display:flex; flex-direction:column;
+        align-items:center; justify-content:center; text-align:center;
+        padding:24px; background:rgba(24,12,6,.42);
+      }
+      .op-logo-song{ color:#ffce9a; font-weight:800; letter-spacing:.14em; font-size:clamp(11px,3.2vw,13px); margin:0 0 12px; white-space:nowrap; }
+      .op-logo-title{
+        font-size:clamp(27px,7.4vw,42px); font-weight:900; line-height:1.35; color:#fff; margin:0;
+        text-shadow:0 3px 0 var(--accent-dark), 0 6px 14px rgba(120,40,10,.5); letter-spacing:.03em;
+      }
+      /* タイトルはタイトル画面と同じ2行組みで固定し、端末幅で途中に
+         余計な改行が入らないようにする（行ごとに折り返し禁止） */
+      .op-logo-title .op-line{ display:block; white-space:nowrap; }
+      .op-logo-sub{ color:#fff; font-weight:700; font-size:clamp(11px,3.3vw,13.5px); margin:12px 0 0; text-shadow:0 1px 5px rgba(23,43,68,.8); white-space:nowrap; }
+      .op-shade{
+        position:absolute; inset:0; pointer-events:none;
+        background:linear-gradient(180deg, rgba(10,6,4,.38), rgba(10,6,4,0) 30%, rgba(10,6,4,0) 52%, rgba(10,6,4,.58));
+      }
+      .op-top{
+        position:absolute; top:0; left:0; right:0; z-index:6;
+        padding:calc(10px + env(safe-area-inset-top)) 12px 0;
+        display:flex; flex-direction:column; gap:10px;
+      }
+      .op-progress{ height:5px; background:rgba(255,255,255,.28); border-radius:999px; overflow:hidden; }
+      #opProgressBar{ display:block; height:100%; width:0; background:#ffb03a; border-radius:999px; }
+      .op-btns{ display:flex; gap:8px; justify-content:flex-end; }
+      .op-skip{ background:rgba(216,64,42,.88); border-color:#ffd9a8; }
+      .op-caption{
+        position:absolute; top:calc(66px + env(safe-area-inset-top)); left:50%; transform:translateX(-50%);
+        margin:0; z-index:6; white-space:nowrap;
+        background:rgba(30,20,14,.66); color:#ffe9c4;
+        border:1.5px solid rgba(255,217,168,.7); border-radius:999px;
+        padding:5px 16px; font-size:15px; font-weight:800;
+      }
+      .op-lyric-wrap{
+        position:absolute; left:16px; right:16px; bottom:calc(20px + env(safe-area-inset-bottom));
+        z-index:6; text-align:center;
+      }
+      .op-lyric{
+        display:inline-block; margin:0; max-width:100%;
+        background:rgba(24,14,10,.74); color:#fff;
+        border:2px solid rgba(255,217,168,.5); border-radius:18px;
+        padding:10px 20px; font-size:clamp(18px,5.2vw,26px); font-weight:900;
+        line-height:1.5; letter-spacing:.03em; text-shadow:0 2px 6px rgba(0,0,0,.5);
+      }
+      .op-lyric.swap{ animation:opLyricIn .45s ease; }
+      @keyframes opLyricIn{ from{ opacity:0; transform:translateY(10px); } to{ opacity:1; transform:translateY(0); } }
+      .op-note{ margin:9px 0 0; font-size:11.5px; font-weight:700; color:#ffd9a8; text-shadow:0 1px 4px rgba(0,0,0,.8); }
+      @media (prefers-reduced-motion: reduce){
+        .op-slide.active .op-bg{ animation:none; }
+        .op-lyric.swap{ animation:none; }
+      }
       @media (max-height:700px){
         #endCard{ max-height:29dvh; }
         #endText{ font-size:14.5px; line-height:1.75; }
@@ -399,7 +472,7 @@
       <!-- タイトル画面 -->
       <section class="screen show" id="titleScreen">
         <div class="title-stage">
-          <img class="title-photo" src="assets/top-shop.jpg?v=20261111d" alt="赤いコンテナのピザ屋「あかいろピザ」の外観イラスト" />
+          <img class="title-photo" src="assets/top-shop.jpg?v=20261111e" alt="赤いコンテナのピザ屋「あかいろピザ」の外観イラスト" />
           <div class="title-scrim-top"></div>
           <div class="title-scrim-bottom"></div>
           <div class="title-head">
@@ -408,23 +481,23 @@
           </div>
           <div class="title-cast">
             <figure>
-              <img src="assets/hero-body.png?v=20261111d" alt="主人公の全身イラスト" />
+              <img src="assets/hero-body.png?v=20261111e" alt="主人公の全身イラスト" />
               <figcaption id="heroCaption"><span id="heroNameLabel">あなた</span><span class="role">（主人公）</span></figcaption>
             </figure>
             <figure>
-              <img src="assets/shiori-body.png?v=20261111d" alt="朝倉栞の全身イラスト" />
+              <img src="assets/shiori-body.png?v=20261111e" alt="朝倉栞の全身イラスト" />
               <figcaption>朝倉 栞<span class="role">（先輩）</span></figcaption>
             </figure>
             <figure>
-              <img src="assets/hina-body.png?v=20261111d" alt="小日向陽菜の全身イラスト" />
+              <img src="assets/hina-body.png?v=20261111e" alt="小日向陽菜の全身イラスト" />
               <figcaption>小日向 陽菜<span class="role">（同級生）</span></figcaption>
             </figure>
             <figure>
-              <img src="assets/tsumugi-body.png?v=20261111d" alt="白瀬紬の全身イラスト" />
+              <img src="assets/tsumugi-body.png?v=20261111e" alt="白瀬紬の全身イラスト" />
               <figcaption>白瀬 紬<span class="role">（後輩）</span></figcaption>
             </figure>
             <figure>
-              <img src="assets/master-body.png?v=20261111d" alt="店主マスターの全身イラスト" />
+              <img src="assets/master-body.png?v=20261111e" alt="店主マスターの全身イラスト" />
               <figcaption>マスター<span class="role">（店主）</span></figcaption>
             </figure>
           </div>
@@ -435,9 +508,47 @@
             <input id="nameInput" type="text" value="ハルト" maxlength="8" autocomplete="off" aria-label="主人公の名前" />
           </div>
           <button class="start-btn" id="startBtn" type="button">バイトをはじめる</button>
+          <button class="op-view-btn" id="opViewBtn" type="button">♪ オープニングを見る</button>
           <p class="title-note">画面タップで会話が進みます。所要時間は5〜10分ほど。<br />選択肢で3人の好感度が変わり、結末が分岐します。</p>
         </div>
       </section>
+
+      <!-- オープニング画面（歌入りOP「あかいろのときめき」／音源は assets/op-song.mp3・68.6秒） -->
+      <section class="screen" id="opScreen" aria-label="オープニング">
+        <div class="op-stage">
+          <div class="op-slide"><img class="op-bg" src="assets/top-shop.jpg?v=20261111e" alt="" /></div>
+          <div class="op-slide"><img class="op-bg" src="assets/scene-evening.jpg?v=20261111e" alt="" /></div>
+          <div class="op-slide"><img class="op-bg" src="assets/scene-interior.jpg?v=20261111e" alt="" /><img class="op-char" src="assets/shiori-body.png?v=20261111e" alt="朝倉栞" /></div>
+          <div class="op-slide"><img class="op-bg" src="assets/top-shop.jpg?v=20261111e" alt="" /><img class="op-char" src="assets/hina-body.png?v=20261111e" alt="小日向陽菜" /></div>
+          <div class="op-slide"><img class="op-bg" src="assets/scene-interior.jpg?v=20261111e" alt="" /><img class="op-char" src="assets/tsumugi-body.png?v=20261111e" alt="白瀬紬" /></div>
+          <div class="op-slide"><img class="op-bg" src="assets/scene-interior.jpg?v=20261111e" alt="" /><img class="op-char" src="assets/master-body.png?v=20261111e" alt="マスター" /></div>
+          <div class="op-slide"><img class="op-bg" src="assets/top-shop.jpg?v=20261111e" alt="" /><img class="op-char" src="assets/hero-body.png?v=20261111e" alt="主人公" /></div>
+          <div class="op-slide"><img class="op-bg" src="assets/scene-interior.jpg?v=20261111e" alt="" /></div>
+          <div class="op-slide"><img class="op-bg" src="assets/scene-night.jpg?v=20261111e" alt="" /></div>
+          <div class="op-slide">
+            <img class="op-bg" src="assets/top-shop.jpg?v=20261111e" alt="" />
+            <div class="op-logo">
+              <p class="op-logo-song">オープニングテーマ「あかいろのときめき」</p>
+              <p class="op-logo-title"><span class="op-line">ピザ屋バイトと</span><span class="op-line">3人の常連さん</span></p>
+              <p class="op-logo-sub">〜 赤いコンテナのお店で始まる、短編ラブストーリー 〜</p>
+            </div>
+          </div>
+        </div>
+        <div class="op-shade"></div>
+        <div class="op-top">
+          <div class="op-progress"><span id="opProgressBar"></span></div>
+          <div class="op-btns">
+            <button class="top-btn" id="opSoundBtn" type="button">♪ 音 ON</button>
+            <button class="top-btn op-skip" id="opSkipBtn" type="button">スキップ ≫</button>
+          </div>
+        </div>
+        <p class="op-caption" id="opCaption" hidden></p>
+        <div class="op-lyric-wrap">
+          <p class="op-lyric" id="opLyric"></p>
+          <p class="op-note" id="opNote" hidden>歌入り音源は準備中です ― いまはインスト版テーマでお届けします</p>
+        </div>
+      </section>
+      <audio id="opAudio" src="assets/op-song.mp3" preload="none"></audio>
 
       <!-- エンディング画面 -->
       <section class="screen" id="endScreen">
@@ -561,12 +672,12 @@
         '</svg>'
       };
 
-      document.getElementById("bg-exterior").innerHTML = '<img src="assets/top-shop.jpg?v=20261111d" alt="" />';
-      document.getElementById("bg-interior").innerHTML = '<img src="assets/scene-interior.jpg?v=20261111d" alt="" />';
+      document.getElementById("bg-exterior").innerHTML = '<img src="assets/top-shop.jpg?v=20261111e" alt="" />';
+      document.getElementById("bg-interior").innerHTML = '<img src="assets/scene-interior.jpg?v=20261111e" alt="" />';
       document.getElementById("bg-school").innerHTML = BG.school;
-      document.getElementById("bg-evening").innerHTML = '<img src="assets/scene-night.jpg?v=20261111d" alt="" />';
+      document.getElementById("bg-evening").innerHTML = '<img src="assets/scene-night.jpg?v=20261111e" alt="" />';
       /* 夕方（夕焼け）背景：栞の夕方場面用（ルート途中の閉店後・夕焼けの帰り道、最終イベント、エンディング）。エンドカードの夕焼けに合わせる */
-      document.getElementById("bg-sunset").innerHTML = '<img src="assets/scene-evening.jpg?v=20261111d" alt="" />';
+      document.getElementById("bg-sunset").innerHTML = '<img src="assets/scene-evening.jpg?v=20261111e" alt="" />';
       /* ================= 立ち絵SVG ================= */
       function faceParts(expr, blushColor){
         var eyes, mouth, blush = "";
@@ -749,6 +860,18 @@
           ],
           barMs:3200, chordType:"sine", chordVol:0.04, chordDur:3.1,
           arpIdx:[2, 1], arpInterval:1.6, arpVol:0.018, bassVol:0.03
+        },
+        /* 歌入り音源（assets/op-song.mp3）が無い間だけ使う、インスト版OPテーマ。
+           音源が用意できたら自動でそちらが流れ、このトラックは使われない */
+        op:{
+          chords:[
+            [261.6, 329.6, 392.0], [392.0, 493.9, 587.3],
+            [220.0, 261.6, 329.6], [174.6, 220.0, 261.6],
+            [261.6, 329.6, 392.0], [392.0, 493.9, 587.3],
+            [293.7, 349.2, 440.0], [261.6, 329.6, 392.0]
+          ],
+          barMs:1600, chordType:"triangle", chordVol:0.045, chordDur:1.55,
+          arpIdx:[0, 1, 2, 1], arpInterval:0.4, arpVol:0.03, bassVol:0.045
         }
       };
       var AudioSys = {
@@ -1164,13 +1287,13 @@
       /* ================= エンジン ================= */
       var NAMES = { asakura:"栞", hina:"陽菜", aoi:"紬" };
       /* 好感度MAX（一筋ボーナス）到達時のみ表示するエンドカード。未登録のヒロインはカードなし */
-      var ENDCARDS = { asakura:"assets/endcard-shiori.jpg?v=20261111d", hina:"assets/endcard-hina.jpg?v=20261111d", aoi:"assets/endcard-tsumugi.jpg?v=20261111d" };
+      var ENDCARDS = { asakura:"assets/endcard-shiori.jpg?v=20261111e", hina:"assets/endcard-hina.jpg?v=20261111e", aoi:"assets/endcard-tsumugi.jpg?v=20261111e" };
       /* 全員好感度0の専用エンディング（zero）用カード */
-      var NORMAL_ENDCARD = "assets/endcard-normal.jpg?v=20261111d";
+      var NORMAL_ENDCARD = "assets/endcard-normal.jpg?v=20261111e";
       /* 通常エンディング（修行エンド）用カード：通常エンド時は常時表示 */
-      var TRAINING_ENDCARD = "assets/endcard-training.jpg?v=20261111d";
+      var TRAINING_ENDCARD = "assets/endcard-training.jpg?v=20261111e";
       /* 隠しエンディング（八方美人エンド）用カード：到達時は常時表示 */
-      var HIDDEN_ENDCARD = "assets/endcard-hidden.jpg?v=20261111d";
+      var HIDDEN_ENDCARD = "assets/endcard-hidden.jpg?v=20261111e";
       var MAXAFF = 6, THRESHOLD = 4;
       var state = null;
       var $ = function(id){ return document.getElementById(id); };
@@ -1215,7 +1338,7 @@
           "endcard-shiori.jpg","endcard-hina.jpg","endcard-tsumugi.jpg","endcard-normal.jpg","endcard-training.jpg","endcard-hidden.jpg"];
         for(var i = 0; i < files.length; i++){
           var im = new Image();
-          im.src = "assets/" + files[i] + "?v=20261111d";
+          im.src = "assets/" + files[i] + "?v=20261111e";
           if(im.decode){ im.decode().catch(function(){}); }
           PRELOADED.push(im);
         }
@@ -1242,7 +1365,7 @@
             cimg.decoding = "sync";
             charEl.appendChild(cimg);
           }
-          var csrc = "assets/" + file + "?v=20261111d";
+          var csrc = "assets/" + file + "?v=20261111e";
           if(cimg.getAttribute("src") !== csrc){ cimg.src = csrc; }
           if(SPRITE_CHARS[ch]){
             charEl.classList.remove("portrait"); layer.classList.remove("portrait-mode");
@@ -1451,16 +1574,16 @@
         var heroName = state ? state.name : "あなた";
         var safeName = heroName.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
         rows += '<div class="status-hero">' +
-                '<img class="status-thumb cutout" src="assets/' + STATUS_IMG.hero + '?v=20261111d" alt="" />' +
+                '<img class="status-thumb cutout" src="assets/' + STATUS_IMG.hero + '?v=20261111e" alt="" />' +
                 '<div class="status-hero-body"><div class="status-hero-name">' + safeName + '<span class="role">主人公</span></div>' +
                 '<div class="status-hero-prof">20歳｜調理専門学校 2年生<br />ピザ屋で働き始めた新入りバイト<br />ピザ作りは、まだまだ練習中<br />不器用だけど、何事にも一生懸命</div></div></div>';
         ["asakura","hina","aoi"].forEach(function(k){
           rows += '<div class="status-row"><span class="status-who">' +
-                  '<img class="status-thumb cutout" src="assets/' + STATUS_IMG[k] + '?v=20261111d" alt="" />' + NAMES[k] + '</span>' +
+                  '<img class="status-thumb cutout" src="assets/' + STATUS_IMG[k] + '?v=20261111e" alt="" />' + NAMES[k] + '</span>' +
                   '<span class="hearts">' + hearts(state ? state.aff[k] : 0) + '</span></div>';
         });
         rows += '<div class="status-hero" style="border-bottom:none;border-top:2px solid #d9c3a5;margin-top:10px;padding-top:12px;margin-bottom:0;padding-bottom:2px;">' +
-                '<img class="status-thumb cutout" src="assets/' + STATUS_IMG.manager + '?v=20261111d" alt="" />' +
+                '<img class="status-thumb cutout" src="assets/' + STATUS_IMG.manager + '?v=20261111e" alt="" />' +
                 '<div class="status-hero-body"><div class="status-hero-name">マスター<span class="role">店主</span></div>' +
                 '<div class="status-hero-prof">40代、気持ちは20代！<br />赤いピザ屋の店主<br />新しいことが好きな、陽気な兄貴分<br />ピザを焼くときは、頼れる職人<br />主人公と常連たちを温かく見守る</div></div></div>';
         $("statusRows").innerHTML = rows;
@@ -1475,13 +1598,10 @@
       $("statusModal").addEventListener("click", function(e){
         if(e.target === this){ this.classList.remove("show"); }
       });
-      /* ---------- 音ON/OFF ---------- */
+      /* ---------- 音ON/OFF（OP再生中も同じ設定で連動する） ---------- */
       $("soundBtn").addEventListener("click", function(e){
         e.stopPropagation();
-        AudioSys.resume();
-        AudioSys.on = !AudioSys.on;
-        this.textContent = AudioSys.on ? "♪ 音 ON" : "♪ 音 OFF";
-        if(AudioSys.on){ AudioSys.startMusic(); } else { AudioSys.stopMusic(); }
+        toggleSound();
       });
       /* ---------- 開始 / 終了 ---------- */
       $("nameInput").addEventListener("input", function(){
@@ -1563,17 +1683,201 @@
       document.addEventListener("keydown", function(e){
         if(e.key === "Escape" && $("cardZoom").classList.contains("show")){ closeCardZoom(); }
       });
+      /* ================= オープニング（歌入りOP） ================= */
+      /* 歌の音源は assets/op-song.mp3（ユーザーが用意した実音源・68.6秒）。
+         曲名は歌詞案の題名「あかいろのときめき」で統一し、OP内に
+         曲名カード（曲名だけを見せる場面）は置かない（最終ロゴの
+         クレジット表記のみ）。
+         歌詞テロップは実歌唱のタイミングに同期させる（均等割りだと
+         後半ほど表示が遅れてズレるため、行ごとに実測の区間で出す）。
+         イントロ（0〜9.6秒）とアウトロ（53.6〜68.6秒）は歌が無いので
+         歌詞を出さない。8行目は前半「名前を呼んで」（41.1〜45.6）と
+         後半「もう一歩近くへ」（45.6〜53.6）で歌い分けられるため、
+         同じ夜景スライドのままテロップだけを切り替える（slide番号で
+         表示スライドを指定し、テロップ切替とスライド切替を分離）。
+         アウトロ約15秒でタイトルロゴを表示し、音源の終了とほぼ
+         同時に終わる。スキップ可。
+         音源が読めない場合のみ、シンセのインスト版OPテーマで代替し
+         「準備中」の注記を出す。
+         mode="game"：終了/スキップで本編開始。mode="replay"：終了でタイトルへ戻る */
+      var OP_SLIDES = [
+        { slide:0, dur:9600,  lyric:"", caption:"" },
+        { slide:1, dur:4000,  lyric:"赤いコンテナ　窯の火がゆれる", caption:"" },
+        { slide:2, dur:4500,  lyric:"初めてのエプロン　少し曲がってる", caption:"朝倉 栞（先輩）" },
+        { slide:3, dur:3800,  lyric:"先輩の笑顔　同級生の声", caption:"小日向 陽菜（同級生）" },
+        { slide:4, dur:4200,  lyric:"後輩のメモ帳　広がる世界", caption:"白瀬 紬（後輩）" },
+        { slide:5, dur:7000,  lyric:"焼きたての香りと　胸の高鳴りは", caption:"マスター（店主）" },
+        { slide:6, dur:4500,  lyric:"きっと同じくらい熱いんだ", caption:"{name}（主人公）" },
+        { slide:7, dur:3500,  lyric:"あかいろピザで始まる物語", caption:"" },
+        { slide:8, dur:4500,  lyric:"名前を呼んで", caption:"" },
+        { slide:8, dur:8000,  lyric:"もう一歩近くへ", caption:"" },
+        { slide:9, dur:15000, lyric:"", caption:"" }
+      ];
+      var OP_TOTAL = 0;
+      for(var oi = 0; oi < OP_SLIDES.length; oi++){ OP_TOTAL += OP_SLIDES[oi].dur; }
+      var opActive = false, opMode = "game", opTimer = null, opWatchdog = null;
+      var opUsingFile = false, opFallback = false, opFileState = "unknown";
+      function syncSoundBtns(){
+        var t = AudioSys.on ? "♪ 音 ON" : "♪ 音 OFF";
+        $("soundBtn").textContent = t;
+        $("opSoundBtn").textContent = t;
+      }
+      function toggleSound(){
+        AudioSys.resume();
+        AudioSys.on = !AudioSys.on;
+        syncSoundBtns();
+        if(!AudioSys.on){
+          if(opActive && opUsingFile){ try{ $("opAudio").pause(); }catch(e){} }
+          AudioSys.stopMusic();
+          return;
+        }
+        if(opActive){
+          if(opUsingFile){
+            var p = null;
+            try{ p = $("opAudio").play(); }catch(e){}
+            if(p && typeof p.catch === "function"){ p.catch(function(){}); }
+          } else if(opFallback){
+            AudioSys.currentTrack = "op"; AudioSys.syncTrack();
+            AudioSys.startMusic();
+          } else {
+            attemptOpAudio();
+          }
+        } else {
+          AudioSys.startMusic();
+        }
+      }
+      function startOpFallback(){
+        if(!opActive) return;
+        if(opUsingFile){ try{ $("opAudio").pause(); }catch(e){} opUsingFile = false; }
+        if(opWatchdog){ clearTimeout(opWatchdog); opWatchdog = null; }
+        opFallback = true; opFileState = "ng";
+        $("opNote").hidden = false;
+        if(!AudioSys.on) return;
+        AudioSys.stopMusic();
+        AudioSys.currentTrack = "op"; AudioSys.syncTrack();
+        AudioSys.startMusic();
+      }
+      function attemptOpAudio(){
+        opUsingFile = false; opFallback = false;
+        if(!AudioSys.on) return;
+        if(opFileState === "ng"){ startOpFallback(); return; }
+        var a = $("opAudio");
+        try{ a.currentTime = 0; }catch(e){}
+        var p = null;
+        try{ p = a.play(); }catch(e){ startOpFallback(); return; }
+        if(!a){ startOpFallback(); return; }
+        opUsingFile = true;
+        if(p && typeof p.catch === "function"){
+          p.catch(function(){ if(opActive && opUsingFile) startOpFallback(); });
+        }
+        if(opWatchdog) clearTimeout(opWatchdog);
+        opWatchdog = setTimeout(function(){
+          opWatchdog = null;
+          if(opActive && opUsingFile && a.readyState < 3) startOpFallback();
+        }, 1600);
+      }
+      $("opAudio").addEventListener("error", function(){
+        opFileState = "ng";
+        if(opActive && opUsingFile) startOpFallback();
+      });
+      $("opAudio").addEventListener("canplay", function(){
+        opFileState = "ok";
+        if(opWatchdog){ clearTimeout(opWatchdog); opWatchdog = null; }
+        if(opActive && opUsingFile){ $("opNote").hidden = true; }
+      });
+      $("opAudio").addEventListener("ended", function(){
+        if(opActive && opUsingFile) endOpening();
+      });
+      function runOpSlide(i){
+        if(!opActive) return;
+        if(i >= OP_SLIDES.length){ endOpening(); return; }
+        var data = OP_SLIDES[i];
+        var slides = document.querySelectorAll(".op-slide");
+        for(var j = 0; j < slides.length; j++){ slides[j].classList.toggle("active", j === data.slide); }
+        var lyricEl = $("opLyric");
+        lyricEl.classList.remove("swap");
+        void lyricEl.offsetWidth;
+        /* 歌の無い区間（イントロ・アウトロ）は歌詞枠ごと隠す */
+        lyricEl.hidden = !data.lyric;
+        lyricEl.textContent = data.lyric;
+        if(data.lyric) lyricEl.classList.add("swap");
+        var cap = $("opCaption");
+        var heroName = $("nameInput").value.trim() || "ハルト";
+        var capText = data.caption ? data.caption.replace("{name}", heroName) : "";
+        if(capText){ cap.textContent = capText; cap.hidden = false; } else { cap.hidden = true; }
+        opTimer = setTimeout(function(){ runOpSlide(i + 1); }, data.dur);
+      }
+      function startOpening(mode){
+        if(opActive) return;
+        opMode = mode; opActive = true; opFallback = false; opUsingFile = false;
+        $("titleScreen").classList.remove("show");
+        $("endScreen").classList.remove("show");
+        $("opNote").hidden = true;
+        $("opScreen").classList.add("show");
+        syncSoundBtns();
+        var bar = $("opProgressBar");
+        bar.style.transition = "none"; bar.style.width = "0%";
+        void bar.offsetWidth;
+        bar.style.transition = "width " + OP_TOTAL + "ms linear";
+        bar.style.width = "100%";
+        AudioSys.resume();
+        AudioSys.stopMusic();
+        runOpSlide(0);
+        attemptOpAudio();
+      }
+      function endOpening(){
+        if(!opActive) return;
+        opActive = false;
+        if(opTimer){ clearTimeout(opTimer); opTimer = null; }
+        if(opWatchdog){ clearTimeout(opWatchdog); opWatchdog = null; }
+        var wasFile = opUsingFile, wasFallback = opFallback;
+        opUsingFile = false; opFallback = false;
+        if(wasFile){ var a = $("opAudio"); try{ a.pause(); a.currentTime = 0; }catch(e){} }
+        var slides = document.querySelectorAll(".op-slide");
+        for(var j = 0; j < slides.length; j++){ slides[j].classList.remove("active"); }
+        var bar = $("opProgressBar");
+        bar.style.transition = "none"; bar.style.width = "0%";
+        $("opScreen").classList.remove("show");
+        if(opMode === "game"){
+          /* インスト版が流れていた場合は、startGame内の背景切替が
+             日常曲へフェードで繋ぐ。歌ファイル再生時はここからBGM開始 */
+          startGame();
+          if(AudioSys.on){ AudioSys.startMusic(); } else { AudioSys.stopMusic(); }
+        } else {
+          $("titleScreen").classList.add("show");
+          if(wasFallback){ AudioSys.setTrack("title"); }
+          else { AudioSys.currentTrack = "title"; AudioSys.syncTrack(); }
+          if(AudioSys.on){ AudioSys.startMusic(); } else { AudioSys.stopMusic(); }
+        }
+      }
+      $("opSkipBtn").addEventListener("click", function(e){
+        e.stopPropagation();
+        endOpening();
+      });
+      $("opSoundBtn").addEventListener("click", function(e){
+        e.stopPropagation();
+        toggleSound();
+      });
+      document.addEventListener("keydown", function(e){
+        if(e.key === "Escape" && opActive){ endOpening(); }
+      });
       /* タイトル画面での最初のタップで、タイトル用BGMを開始する */
       $("titleScreen").addEventListener("click", function(e){
-        if(e.target.closest("#startBtn")) return;
+        if(e.target.closest("#startBtn") || e.target.closest("#opViewBtn")) return;
         AudioSys.resume();
         AudioSys.setTrack("title");
         if(AudioSys.on) AudioSys.startMusic();
       });
+      /* 「バイトをはじめる」→ OP → 本編 */
       $("startBtn").addEventListener("click", function(){
         AudioSys.resume();
-        startGame();
-        if(AudioSys.on) AudioSys.startMusic();
+        startOpening("game");
+      });
+      /* タイトルからいつでもOPを見直せる */
+      $("opViewBtn").addEventListener("click", function(e){
+        e.stopPropagation();
+        AudioSys.resume();
+        startOpening("replay");
       });
       $("againBtn").addEventListener("click", function(){
         AudioSys.resume();
