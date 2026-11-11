@@ -5,9 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
     <meta name="color-scheme" content="light" />
     <link rel="icon" href="data:," />
-    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
-    <meta name="apple-mobile-web-app-title" content="ピザ屋バイト" />
-    <meta name="mobile-web-app-capable" content="yes" />
     <title>ピザ屋バイトと3人の常連さん</title>
     <style>
       :root{
@@ -321,18 +318,11 @@
         text-align:center;
       }
       .complete-card img{
-        width:100%; height:auto; max-height:52dvh; object-fit:contain; display:block;
+        width:100%; height:auto; max-height:calc(100dvh - 150px); object-fit:contain; display:block;
         border-radius:12px; border:2px solid #e8d5b5; background:#f7ecd9;
       }
-      .complete-card h2{
-        margin:12px 0 6px; font-size:clamp(21px,6vw,27px); font-weight:900;
-        color:var(--accent-dark); letter-spacing:.03em;
-      }
-      .complete-card p{
-        margin:0 4px; font-size:14.5px; line-height:1.85; color:#5a4636; font-weight:700;
-      }
       .complete-close{
-        margin-top:14px; width:100%;
+        margin-top:12px; width:100%;
         background:var(--accent); color:#fff; border:none; border-radius:10px;
         font-size:16px; font-weight:800; padding:11px;
       }
@@ -726,9 +716,7 @@
       <!-- 全エンディング達成 特典カード（画像は差し替え専用ファイル assets/arigato-card.jpg） -->
       <div id="completeModal" role="dialog" aria-label="全エンディング達成特典カード">
         <div class="complete-card">
-          <img id="completeImg" src="assets/arigato-card.jpg?v=20261111j" alt="赤いコンテナのお店の前に立つ全員集合のイラスト" />
-          <h2>全エンディング達成！</h2>
-          <p>9つすべてのエンディングを見届けてくれて、ありがとうございました。<br />あなたと過ごした「あかいろピザ」での日々は、みんなの宝物です。またいつでも、焼きたてのピザを食べに来てくださいね。</p>
+          <img id="completeImg" src="assets/arigato-card.jpg?v=20261111k" alt="「全エンディングコンプリート！」「遊んでくれて有難う御座いました。」の文字と、焼きたてのピザを囲む全員集合のイラスト" />
           <button class="complete-close" id="completeClose" type="button">閉じる</button>
         </div>
       </div>
@@ -1467,7 +1455,7 @@
       /* 全エンディング達成（9/9）特典カード。絵は差し替え専用ファイルに分離してあり、
          専用イラストが届いたら assets/arigato-card.jpg の中身を差し替えるだけでよい
          （当面はタイトル画面の全員集合と同じ絵柄を合成したものを入れてある） */
-      var COMPLETE_CARD_SRC = "assets/arigato-card.jpg?v=20261111j";
+      var COMPLETE_CARD_SRC = "assets/arigato-card.jpg?v=20261111k";
       /* ================= エンディング回収（コレクション） =================
          ゲーム内に実在する全エンディングを対象にする。
          ヒロイン個別エンドは、通常到達と一筋MAX到達（専用エンドカードが
@@ -2096,7 +2084,7 @@
         hero:    { src:"assets/sheet-hero.jpg?v=20261111i",    label:"主人公（あなた）" },
         shiori:  { src:"assets/sheet-shiori.jpg?v=20261111g",  label:"朝倉 栞（先輩）" },
         hina:    { src:"assets/sheet-hina.jpg?v=20261111h",    label:"小日向 陽菜（同級生）" },
-        tsumugi: { src:"assets/sheet-tsumugi.jpg?v=20261111h", label:"白瀬 紬（後輩）" },
+        tsumugi: { src:"assets/sheet-tsumugi.jpg?v=20261111l", label:"白瀬 紬（後輩）" },
         master:  { src:"assets/sheet-master.jpg?v=20261111i",  label:"マスター（店主）" }
       };
       function openSheet(key){
